@@ -7,11 +7,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/user"
 	"github.com/gymgle/exercism/go/luhn"
 )
 
 func (h *Handler) UploadOrderHandler(w http.ResponseWriter, r *http.Request) {
-	userID := r.Context().Value("userID").(int)
+	userID := r.Context().Value(user.UserIDKey).(int)
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
