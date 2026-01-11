@@ -39,11 +39,11 @@ func (h *Handler) GetOrdersHandler(w http.ResponseWriter, r *http.Request) {
 		orders = append(orders, order)
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	if !hasOrders {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(orders)
 }
