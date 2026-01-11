@@ -23,19 +23,19 @@ func main() {
 
 	router.Use(middleware.LoggingMiddleware)
 
-	router.Post("/api/user/register/", h.RegisterUserHandler)
-	router.Post("/api/user/login/", h.LoginHandler)
+	router.Post("/api/user/register", h.RegisterUserHandler)
+	router.Post("/api/user/login", h.LoginHandler)
 
 	router.Group(func(router chi.Router) {
 		router.Use(middleware.AuthMiddleware(cfg.SecretKey))
 
-		router.Post("/api/user/orders/", h.UploadOrderHandler)
-		router.Get("/api/user/orders/", h.GetOrdersHandler)
+		router.Post("/api/user/orders", h.UploadOrderHandler)
+		router.Get("/api/user/orders", h.GetOrdersHandler)
 
-		router.Get("/api/user/balance/", h.GetBalanceHandler)
+		router.Get("/api/user/balance", h.GetBalanceHandler)
 
-		router.Post("/api/user/balance/withdraw/", h.WithdrawHandler)
-		router.Get("/api/user/withdrawals/", h.GetWithdrawalsHandler)
+		router.Post("/api/user/balance/withdraw", h.WithdrawHandler)
+		router.Get("/api/user/withdrawals", h.GetWithdrawalsHandler)
 	})
 
 	log.Printf("Starting server on: %s...", cfg.Host)
