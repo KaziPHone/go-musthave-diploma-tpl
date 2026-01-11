@@ -13,7 +13,7 @@ func (h *Handler) GetOrdersHandler(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value("userID").(int)
 
 	query := `SELECT number, status, accrual, uploaded_at FROM orders WHERE user_id = $1 ORDER BY uploaded_at DESC`
-	rows, err := h.Storage.DbStorage.GetRows(r.Context(), query, userID)
+	rows, err := h.Storage.DBStorage.GetRows(r.Context(), query, userID)
 
 	if rows.Err() != nil || err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

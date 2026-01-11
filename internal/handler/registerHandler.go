@@ -60,12 +60,12 @@ func (h *Handler) registrationUser(req user.RegisterRequest, isHashed bool) erro
 	if !isHashed {
 		pass = crypto.HashString(req.Password) // хеширование пароля
 	}
-	err := h.Storage.DbStorage.Insert(query, req.Login, pass)
+	err := h.Storage.DBStorage.Insert(query, req.Login, pass)
 	return err
 }
 
 func (h *Handler) userIsRegistred(login string) (bool, error) {
 	query := `SELECT COUNT(login) FROM users WHERE login = $1`
-	result, err := h.Storage.DbStorage.CountRows(query, login)
+	result, err := h.Storage.DBStorage.CountRows(query, login)
 	return result > 0, err
 }

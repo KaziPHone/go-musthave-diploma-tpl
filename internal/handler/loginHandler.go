@@ -71,5 +71,5 @@ func (h *Handler) loginUser(req user.LoginRequest, isHashed bool) (int, error) {
 	if !isHashed {
 		pass = crypto.HashString(req.Password)
 	}
-	return h.Storage.DbStorage.CountRows(query, req.Login, pass)
+	return h.Storage.DBStorage.CountRows(query, req.Login, pass)
 }
