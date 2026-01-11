@@ -4,6 +4,9 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/rs/zerolog/log"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -23,6 +26,7 @@ type DataBase struct {
 	dataBaseDsn string
 	isConnected bool
 	db          *sql.DB
+	migratePath string
 }
 
 func newDatabase(dataBaseDsn string) DBStorage {
@@ -64,6 +68,8 @@ func (d *DataBase) initDataBase() {
 	d.db = db
 	log.Print("Database connected")
 
+	d.migrateDB()
+
 }
 
 func (d *DataBase) IsConnected() bool {
@@ -99,4 +105,40 @@ func (d *DataBase) CountRows(query string, args ...interface{}) (int, error) {
 
 func (d *DataBase) GetRows(r context.Context, query string, args ...interface{}) (*sql.Rows, error) {
 	return d.db.QueryContext(r, query, args...)
+}
+
+func (d *DataBase) migrateDB() {
+
+	driver, err := postgres.WithInstance(d.db, &postgres.Config{})
+	if err != nil {
+		log.Printf("error creating migration driver: %v\n", err)
+		return
+	}
+
+	d.setMigratePath()
+	migrator, err := migrate.NewWithDatabaseInstance(
+		d.migratePath,
+		"postgres",
+		driver,
+	)
+
+	if err != nil {
+		log.Printf("failed to create migrator instance: %v\n", err)
+		return
+	}
+
+	err = migrator.Up()
+	if err != nil && err != migrate.ErrNoChange {
+		log.Printf("migration failed: %v\n", err)
+		return
+	}
+
+	log.Print("migration success")
+}
+
+// setMigratePath установка пути миграции
+func (d *DataBase) setMigratePath() {
+	if d.migratePath == "" {
+		d.migratePath = "file://./migrations"
+	}
 }
