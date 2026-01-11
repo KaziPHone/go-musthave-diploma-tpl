@@ -16,13 +16,9 @@ type User struct {
 	Password string `json:"-"`
 }
 
-type RegisterRequest struct {
+type UserRequest struct {
 	Login    string `json:"login"`
 	Password string `json:"password"`
-}
-
-type LoginRequest struct {
-	RegisterRequest
 }
 
 type Order struct {

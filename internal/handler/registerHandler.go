@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/crypto"
+	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/helpers"
 	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/user"
 )
 
@@ -17,7 +18,7 @@ func (h *Handler) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req user.RegisterRequest
+	var req user.UserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
@@ -47,6 +48,21 @@ func (h *Handler) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, err := h.loginUser(req, isHashed)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	cookie, err := helpers.GetAuthCookie(userID, req.Login, h.JwtKey)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	http.SetCookie(w, cookie)
+
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "User registered successfully",
@@ -54,7 +70,7 @@ func (h *Handler) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *Handler) registrationUser(req user.RegisterRequest, isHashed bool) error {
+func (h *Handler) registrationUser(req user.UserRequest, isHashed bool) error {
 	query := `INSERT INTO users (login, password) VALUES ($1, $2)`
 	pass := req.Password
 	if !isHashed {
