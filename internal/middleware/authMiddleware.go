@@ -36,7 +36,7 @@ func AuthMiddleware(secretKey string) func(http.Handler) http.Handler {
 			}
 
 			// Добавляем информацию о пользователе в контекст
-			ctx := context.WithValue(r.Context(), "userID", claims.UserID)
+			ctx := context.WithValue(r.Context(), user.UserIDKey, claims.UserID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}

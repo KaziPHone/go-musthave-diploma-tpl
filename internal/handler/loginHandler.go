@@ -27,7 +27,7 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId, err := h.loginUser(req, isHashed)
+	userID, err := h.loginUser(req, isHashed)
 	if err == sql.ErrNoRows {
 		http.Error(w, "Invalid login/password", http.StatusUnauthorized)
 		return
@@ -40,7 +40,7 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &user.Claims{
-		UserID: userId,
+		UserID: userID,
 		Login:  req.Login,
 		RegisteredClaims: jwt.RegisteredClaims{ // ← изменилось имя поля
 			ExpiresAt: jwt.NewNumericDate(expirationTime), // ← новый способ

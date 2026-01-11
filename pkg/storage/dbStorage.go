@@ -9,7 +9,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-type DbStorage interface {
+type DBStorage interface {
 	IsConnected() bool
 	GetErr() error
 	Insert(query string, args ...interface{}) error
@@ -25,7 +25,7 @@ type DataBase struct {
 	db          *sql.DB
 }
 
-func newDatabase(dataBaseDsn string) DbStorage {
+func newDatabase(dataBaseDsn string) DBStorage {
 
 	db := &DataBase{
 		dataBaseDsn: dataBaseDsn,

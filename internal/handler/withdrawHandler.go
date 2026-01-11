@@ -2,5 +2,5 @@ package handler
 
 import "net/http"
 
-func (g *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 }

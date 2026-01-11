@@ -1,7 +1,7 @@
 package storage
 
 type GofferStorage struct {
-	DbStorage DbStorage
+	DbStorage DBStorage
 }
 
 func NewGofferStorage(dataBaseDsn string) *GofferStorage {

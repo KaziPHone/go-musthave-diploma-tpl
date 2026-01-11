@@ -6,6 +6,10 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
+type ContextKey string
+
+const UserIDKey ContextKey = "userID"
+
 type User struct {
 	ID       int    `json:"id"`
 	Login    string `json:"login"`
