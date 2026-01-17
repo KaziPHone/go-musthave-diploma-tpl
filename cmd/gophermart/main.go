@@ -37,7 +37,7 @@ func main() {
 		router.Post("/api/user/balance/withdraw", h.WithdrawHandler)
 		router.Get("/api/user/withdrawals", h.GetWithdrawalsHandler)
 	})
-
+	log.Printf("Accrual service available on: %s...", cfg.AccrualAddress)
 	log.Printf("Starting server on: %s...", cfg.Host)
 	err = http.ListenAndServe(cfg.Host, router)
 	if err != nil {
