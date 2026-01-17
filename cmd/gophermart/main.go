@@ -6,6 +6,7 @@ import (
 	"github.com/KaziPHone/go-musthave-diploma-tpl/internal/config"
 	"github.com/KaziPHone/go-musthave-diploma-tpl/internal/handler"
 	"github.com/KaziPHone/go-musthave-diploma-tpl/internal/middleware"
+	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/accrual"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog/log"
@@ -19,7 +20,7 @@ func main() {
 	}
 
 	router := chi.NewRouter()
-	h := handler.NewHandler(cfg.DataBaseDsn, []byte(cfg.SecretKey))
+	h := handler.NewHandler(cfg)
 
 	router.Use(middleware.LoggingMiddleware)
 
@@ -37,7 +38,11 @@ func main() {
 		router.Post("/api/user/balance/withdraw", h.WithdrawHandler)
 		router.Get("/api/user/withdrawals", h.GetWithdrawalsHandler)
 	})
+
+	accrual := accrual.NewAccrual(cfg.AccrualAddress, h.Storage)
+	go accrual.Start()
 	log.Printf("Accrual service available on: %s...", cfg.AccrualAddress)
+
 	log.Printf("Starting server on: %s...", cfg.Host)
 	err = http.ListenAndServe(cfg.Host, router)
 	if err != nil {

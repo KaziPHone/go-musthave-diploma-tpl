@@ -16,3 +16,20 @@ func GetUserBalance(row *sql.Row) (user.Balance, error) {
 	}
 	return userBalance, nil
 }
+
+func GetOrders(rows *sql.Rows) ([]user.Order, error) {
+	var orders []user.Order
+	for rows.Next() {
+		var order user.Order
+		var accrual sql.NullFloat64
+		err := rows.Scan(&order.Number, &accrual, &order.UserId, &order.Status, &order.UploadedAt, &order.ProcessedAt)
+		if err != nil {
+			return nil, err
+		}
+		if accrual.Valid {
+			order.Accrual = &accrual.Float64
+		}
+		orders = append(orders, order)
+	}
+	return orders, nil
+}

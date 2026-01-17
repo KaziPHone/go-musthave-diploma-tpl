@@ -1,15 +1,19 @@
 package handler
 
-import "github.com/KaziPHone/go-musthave-diploma-tpl/pkg/storage"
+import (
+	"github.com/KaziPHone/go-musthave-diploma-tpl/internal/config"
+	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/storage"
+)
 
 type Handler struct {
 	Storage storage.GofferStorage
 	JwtKey  []byte
 }
 
-func NewHandler(dsn string, jwtKey []byte) *Handler {
+func NewHandler(cfg *config.ServerConfig) *Handler {
+	storage := storage.NewGofferStorage(cfg.DataBaseDsn)
 	return &Handler{
-		Storage: *storage.NewGofferStorage(dsn),
-		JwtKey:  jwtKey,
+		Storage: *storage,
+		JwtKey:  []byte(cfg.SecretKey),
 	}
 }
