@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/helpers"
 	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/user"
 )
 
@@ -17,12 +18,9 @@ func (h *Handler) GetBalanceHandler(w http.ResponseWriter, r *http.Request) {
 	query := `SELECT user_id, current, withdrawn FROM user_balance WHERE user_id = $1`
 	row := h.Storage.DBStorage.InsertWithReturning(query, userID)
 
-	if row.Err() != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
+	userBalance, err := helpers.GetUserBalance(row)
 
-	if err := row.Scan(&userBalance.UserId, &userBalance.Current, &userBalance.Withdrawn); err != nil {
+	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}

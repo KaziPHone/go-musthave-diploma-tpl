@@ -15,6 +15,8 @@ func (h *Handler) GetOrdersHandler(w http.ResponseWriter, r *http.Request) {
 	query := `SELECT number, status, accrual, uploaded_at FROM orders WHERE user_id = $1 ORDER BY uploaded_at DESC`
 	rows, err := h.Storage.DBStorage.GetRows(r.Context(), query, userID)
 
+	w.Header().Set("Content-Type", "application/json")
+
 	if rows.Err() != nil || err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -39,7 +41,6 @@ func (h *Handler) GetOrdersHandler(w http.ResponseWriter, r *http.Request) {
 		orders = append(orders, order)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	if !hasOrders {
 		w.WriteHeader(http.StatusNoContent)
 		return

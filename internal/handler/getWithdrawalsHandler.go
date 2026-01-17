@@ -5,4 +5,5 @@ import (
 )
 
 func (h *Handler) GetWithdrawalsHandler(w http.ResponseWriter, r *http.Request) {
+
 }
