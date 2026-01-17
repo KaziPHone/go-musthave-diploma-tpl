@@ -87,7 +87,7 @@ func (a *accrual) getOpenOrders() {
 	}
 	defer rows.Close()
 
-	orders, err := helpers.GetOrders(rows)
+	orders, _ := helpers.GetOrders(rows)
 	for _, order := range orders {
 		a.activeJobsMutex.RLock()
 		running := a.activeJobs[order.Number] != nil

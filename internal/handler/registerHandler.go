@@ -97,9 +97,9 @@ func (h *Handler) userIsRegistred(login string) (bool, error) {
 	return result > 0, err
 }
 
-func (h *Handler) addUserBalance(userId int) error {
+func (h *Handler) addUserBalance(userID int) error {
 	query := `INSERT INTO user_balance (user_id, current, withdrawn, updated_at, uploaded_at) 
 	VALUES ($1, $2, $3, $4, $5)`
 	t := time.Now()
-	return h.Storage.DBStorage.Insert(query, userId, 0, 0, t, t)
+	return h.Storage.DBStorage.Insert(query, userID, 0, 0, t, t)
 }
