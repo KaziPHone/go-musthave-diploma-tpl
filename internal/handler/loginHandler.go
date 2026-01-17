@@ -37,22 +37,6 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// expirationTime := time.Now().Add(24 * time.Hour)
-	// claims := &user.Claims{
-	// 	UserID: userID,
-	// 	Login:  req.Login,
-	// 	RegisteredClaims: jwt.RegisteredClaims{ // ← изменилось имя поля
-	// 		ExpiresAt: jwt.NewNumericDate(expirationTime), // ← новый способ
-	// 	},
-	// }
-
-	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	// tokenString, err := token.SignedString(h.JwtKey)
-	// if err != nil {
-	// 	http.Error(w, "Internal server error", http.StatusInternalServerError)
-	// 	return
-	// }
-
 	cookie, err := helpers.GetAuthCookie(userID, req.Login, h.JwtKey)
 	http.SetCookie(w, cookie)
 

@@ -6,6 +6,15 @@ CREATE TABLE users(
     PRIMARY KEY(id)
 );
 
+CREATE TABLE user_balance (
+    id SERIAL PRIMARY KEY,
+    current FLOAT,
+    withdrawn FLOAT,
+    user_id INTEGER REFERENCES users(id),
+    updated_at TIMESTAMP NOT NULL,
+    uploaded_at TIMESTAMP NOT NULL
+);
+
 CREATE TABLE orders(
     number varchar(50) NOT NULL,
     accrual double precision,

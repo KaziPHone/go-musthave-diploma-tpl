@@ -16,6 +16,7 @@ type DBStorage interface {
 	IsConnected() bool
 	GetErr() error
 	Insert(query string, args ...interface{}) error
+	InsertWithReturning(query string, args ...interface{}) *sql.Row
 	Select(query string, args ...interface{}) (sql.Result, error)
 	CountRows(query string, args ...interface{}) (int, error)
 	GetRows(r context.Context, query string, args ...interface{}) (*sql.Rows, error)
@@ -91,6 +92,10 @@ func (d *DataBase) execContext(ctx context.Context, query string, args ...interf
 func (d *DataBase) Insert(query string, args ...interface{}) error {
 	_, err := d.execContext(context.Background(), query, args...)
 	return err
+}
+
+func (d *DataBase) InsertWithReturning(query string, args ...interface{}) *sql.Row {
+	return d.db.QueryRowContext(context.Background(), query, args...)
 }
 
 func (d *DataBase) Select(query string, args ...interface{}) (sql.Result, error) {
