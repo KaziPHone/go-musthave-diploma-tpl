@@ -28,6 +28,7 @@ func (h *Handler) UploadOrderHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = strconv.ParseInt(orderNumber, 10, 64)
 	if err != nil || !luhn.Valid(orderNumber) {
 		http.Error(w, "Invalid order number", http.StatusUnprocessableEntity)
+		return
 	}
 
 	// Проверка существования заказа
