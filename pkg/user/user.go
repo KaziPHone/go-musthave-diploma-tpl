@@ -27,11 +27,11 @@ type Order struct {
 	Accrual     *float64   `json:"accrual,omitempty"`
 	UploadedAt  time.Time  `json:"uploaded_at"`
 	ProcessedAt *time.Time `json:"-"`
-	UserId      int        `json:"-"`
+	UserID      int        `json:"-"`
 }
 
 type Balance struct {
-	UserId    int     `json:"-"`
+	UserID    int     `json:"-"`
 	Current   float64 `json:"current"`
 	Withdrawn float64 `json:"withdrawn"`
 }

@@ -38,6 +38,10 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cookie, err := helpers.GetAuthCookie(userID, req.Login, h.JwtKey)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 	http.SetCookie(w, cookie)
 
 	w.WriteHeader(http.StatusOK)

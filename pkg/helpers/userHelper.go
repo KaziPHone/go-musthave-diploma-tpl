@@ -11,7 +11,7 @@ func GetUserBalance(row *sql.Row) (user.Balance, error) {
 	if row.Err() != nil {
 		return user.Balance{}, row.Err()
 	}
-	if err := row.Scan(&userBalance.UserId, &userBalance.Current, &userBalance.Withdrawn); err != nil {
+	if err := row.Scan(&userBalance.UserID, &userBalance.Current, &userBalance.Withdrawn); err != nil {
 		return user.Balance{}, err
 	}
 	return userBalance, nil
@@ -22,7 +22,7 @@ func GetOrders(rows *sql.Rows) ([]user.Order, error) {
 	for rows.Next() {
 		var order user.Order
 		var accrual sql.NullFloat64
-		err := rows.Scan(&order.Number, &accrual, &order.UserId, &order.Status, &order.UploadedAt, &order.ProcessedAt)
+		err := rows.Scan(&order.Number, &accrual, &order.UserID, &order.Status, &order.UploadedAt, &order.ProcessedAt)
 		if err != nil {
 			return nil, err
 		}
