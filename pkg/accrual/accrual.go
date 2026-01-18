@@ -241,7 +241,6 @@ func (a *accrual) updateOrderOperation(order *accrualOrder, userID int) error {
 	//логгируем операцию
 	query = `INSERT INTO balance_operations (user_id, amount, "type", order_number, processed_at) VALUES ($1, $2, $3, $4, $5)`
 	if err := a.dbStorage.DBStorage.Insert(query, userID, order.Accrual, "accrual", order.Order, time.Now()); err != nil {
-		fmt.Println("FAIL")
 		return err
 	}
 
@@ -252,7 +251,6 @@ func (a *accrual) updateOrderOperation(order *accrualOrder, userID int) error {
 			updated_at = $3 
 		WHERE user_id = $1
 	`
-	fmt.Println(userID, order.Accrual, time.Now())
 	err := a.dbStorage.DBStorage.Insert(query, userID, order.Accrual, time.Now())
 	if err != nil {
 		return err

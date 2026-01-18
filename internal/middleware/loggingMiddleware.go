@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"bytes"
-	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -32,15 +31,6 @@ func LoggingMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		var reqBody []byte
-		if r.Body != nil {
-			// Сохраняем тело, чтобы его можно было прочитать снова
-			body, _ := ioutil.ReadAll(r.Body)
-			reqBody = body
-			// Восстанавливаем тело для дальнейшего использования
-			r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-		}
-
 		recorder := &responseRecorder{
 			ResponseWriter: w,
 			statusCode:     http.StatusOK,
@@ -54,8 +44,6 @@ func LoggingMiddleware(h http.Handler) http.Handler {
 			Int("status_code", recorder.statusCode).
 			Int("response_size_bytes", recorder.responseSize).
 			Dur("request_duration_ms", time.Since(start)).
-			Str("request_body", string(reqBody)).
-			Str("response_body", recorder.bodyBuf.String()).
 			Msg("")
 	})
 }

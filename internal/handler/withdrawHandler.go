@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -53,15 +52,12 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 	`
 	err = h.Storage.DBStorage.Insert(query, userID, userBalance.Current, userBalance.Withdrawn, time.Now())
 	if err != nil {
-		fmt.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 
-	// fmt.Println(balance, err, req.Sum)
-
 	query = `
-    INSERT INTO balance_operations (user_id, type, amount, order_number, processed_at)
-    VALUES ($1, 'withdraw', $2, $3, $4)
+		INSERT INTO balance_operations (user_id, type, amount, order_number, processed_at)
+		VALUES ($1, 'withdraw', $2, $3, $4)
 	`
 	err = h.Storage.DBStorage.Insert(query, userID, req.Sum, req.Order, time.Now())
 	if err != nil {
