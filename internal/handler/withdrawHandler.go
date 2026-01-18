@@ -34,22 +34,22 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if userBalance.Current <= 0 {
+	balance := roundTo4Decimals(userBalance.Current - req.Sum)
+	if userBalance.Current <= 0 || balance < 0 {
 		http.Error(w, "Internal server error", http.StatusPaymentRequired)
 		return
 	}
 
-	balance := roundTo4Decimals(userBalance.Current - req.Sum)
 	query = `
-		UPDATE user_balance 
-		SET current = current - $2, 
+		UPDATE orders 
+		SET amount = amount - $2, 
 			updated_at = $3 
-		WHERE user_id = $1
+		WHERE order_number = $1
 	`
 	err = h.Storage.DBStorage.Insert(query, userID, balance, time.Now())
 	if err != nil {
 		fmt.Println(err)
-		http.Error(w, "Internal server error", http.StatusPaymentRequired)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 
 	fmt.Println(balance, err, req.Sum)
