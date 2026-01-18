@@ -33,6 +33,7 @@ type accrualOrder struct {
 
 type jobCommand struct {
 	OrderNumber string
+	UserID      int
 	Done        chan struct{} // Сигнал завершения
 }
 
@@ -97,7 +98,7 @@ func (a *accrual) getOpenOrders() {
 			continue
 		}
 
-		done, err := a.addOrder(order.Number)
+		done, err := a.addOrder(order.Number, order.UserID)
 		if err != nil {
 			fmt.Printf("Failed to start job for order %s: %v\n", order.Number, err)
 		} else {
@@ -107,7 +108,7 @@ func (a *accrual) getOpenOrders() {
 	}
 }
 
-func (a *accrual) addOrder(orderNumber string) (<-chan struct{}, error) {
+func (a *accrual) addOrder(orderNumber string, userID int) (<-chan struct{}, error) {
 	a.activeJobsMutex.Lock()
 	defer a.activeJobsMutex.Unlock()
 
@@ -118,6 +119,7 @@ func (a *accrual) addOrder(orderNumber string) (<-chan struct{}, error) {
 	done := make(chan struct{})
 	cmd := jobCommand{
 		OrderNumber: orderNumber,
+		UserID:      userID,
 		Done:        done,
 	}
 
@@ -205,6 +207,14 @@ func (a *accrual) runJob(cmd jobCommand) {
 				if err != nil {
 					fmt.Printf("Failed to update order %s: %v\n", cmd.OrderNumber, err)
 				}
+
+				if accrualData.Status == "PROCESSED" {
+					err := a.updateOrderOperation(accrualData, cmd.UserID)
+					if err != nil {
+						fmt.Printf("Fail update order %s in balance: %v\n", cmd.OrderNumber, err)
+					}
+				}
+
 				fmt.Printf("Order %s reached final status: %s\n", cmd.OrderNumber, accrualData.Status)
 				return // Завершаем job
 			} else {
@@ -222,6 +232,33 @@ func (a *accrual) runJob(cmd jobCommand) {
 			return
 		}
 	}
+}
+
+func (a *accrual) updateOrderOperation(order *accrualOrder, userID int) error {
+
+	var query string
+
+	//логгируем операцию
+	query = `INSERT INTO balance_operations (user_id, amount, "type", order_number, processed_at) VALUES ($1, $2, $3, $4, $5)`
+	if err := a.dbStorage.DBStorage.Insert(query, userID, order.Accrual, order.Status, order.Order, time.Now()); err != nil {
+		fmt.Println("FAIL")
+		return err
+	}
+
+	//сохраняем баланс
+	query = `
+		UPDATE user_balance 
+		SET current = current + $2, 
+			updated_at = $3 
+		WHERE user_id = $1
+	`
+	fmt.Println(userID, order.Accrual, time.Now())
+	err := a.dbStorage.DBStorage.Insert(query, userID, order.Accrual, time.Now())
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (a *accrual) cleanupJob(orderNumber string) {

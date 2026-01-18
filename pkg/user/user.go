@@ -41,3 +41,12 @@ type Claims struct {
 	Login  string `json:"login"`
 	jwt.RegisteredClaims
 }
+
+type Operation struct {
+	ID          int       `json:"-"`
+	UserID      int       `json:"-"`
+	Type        string    `json:"-"`
+	Amount      float64   `json:"sum"`
+	Order       string    `json:"order"`
+	ProcessedAt time.Time `json:"processed_at"`
+}
