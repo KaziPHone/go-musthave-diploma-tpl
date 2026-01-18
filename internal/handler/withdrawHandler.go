@@ -52,7 +52,7 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	fmt.Println(userBalance.Current, err)
+	fmt.Println(balance, err)
 
 }
 
