@@ -42,7 +42,7 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 	userBalance.Current -= req.Sum
 	query = `
 		UPDATE user_balance 
-		SET current = $2, 
+		SET current = current - $2, 
 			updated_at = $3 
 		WHERE user_id = $1
 	`
@@ -51,6 +51,7 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", http.StatusPaymentRequired)
 	}
 
+	w.WriteHeader(http.StatusOK)
 	fmt.Println(userBalance.Current, err)
 
 }
