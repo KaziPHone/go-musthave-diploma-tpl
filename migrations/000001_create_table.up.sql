@@ -6,13 +6,15 @@ CREATE TABLE users(
     PRIMARY KEY(id)
 );
 
-CREATE TABLE user_balance (
-    id SERIAL PRIMARY KEY,
-    current FLOAT,
-    withdrawn FLOAT,
-    user_id INTEGER REFERENCES users(id),
-    updated_at TIMESTAMP NOT NULL,
-    uploaded_at TIMESTAMP NOT NULL
+CREATE TABLE user_balance(
+    id SERIAL NOT NULL,
+    "current" double precision,
+    withdrawn double precision,
+    user_id integer,
+    updated_at timestamp without time zone NOT NULL,
+    uploaded_at timestamp without time zone NOT NULL,
+    PRIMARY KEY(id),
+    CONSTRAINT user_balance_user_id_fkey FOREIGN key(user_id) REFERENCES users(id)
 );
 
 CREATE TABLE orders(
