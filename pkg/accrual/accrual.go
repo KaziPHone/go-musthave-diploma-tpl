@@ -240,7 +240,7 @@ func (a *accrual) updateOrderOperation(order *accrualOrder, userID int) error {
 
 	//логгируем операцию
 	query = `INSERT INTO balance_operations (user_id, amount, "type", order_number, processed_at) VALUES ($1, $2, $3, $4, $5)`
-	if err := a.dbStorage.DBStorage.Insert(query, userID, order.Accrual, order.Status, order.Order, time.Now()); err != nil {
+	if err := a.dbStorage.DBStorage.Insert(query, userID, order.Accrual, "accrual", order.Order, time.Now()); err != nil {
 		fmt.Println("FAIL")
 		return err
 	}
