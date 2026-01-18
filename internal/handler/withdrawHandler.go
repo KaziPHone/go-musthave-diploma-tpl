@@ -39,14 +39,14 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userBalance.Current -= req.Sum
+	balance := roundTo4Decimals(userBalance.Current - req.Sum)
 	query = `
 		UPDATE user_balance 
 		SET current = current - $2, 
 			updated_at = $3 
 		WHERE user_id = $1
 	`
-	err = h.Storage.DBStorage.Insert(query, userID, userBalance.Current, time.Now())
+	err = h.Storage.DBStorage.Insert(query, userID, balance, time.Now())
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusPaymentRequired)
 	}
@@ -54,4 +54,8 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Println(userBalance.Current, err)
 
+}
+
+func roundTo4Decimals(value float64) float64 {
+	return float64(int64(value*10000+0.5)) / 10000
 }
