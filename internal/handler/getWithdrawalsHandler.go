@@ -15,7 +15,7 @@ func (h *Handler) GetWithdrawalsHandler(w http.ResponseWriter, r *http.Request) 
 	query := `SELECT number, status, accrual, uploaded_at FROM balance_operationse WHERE user_id = $1 ORDER BY uploaded_at DESC`
 	rows, err := h.Storage.DBStorage.GetRows(r.Context(), query, userID)
 
-	if err != nil {
+	if err != nil || rows == nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}

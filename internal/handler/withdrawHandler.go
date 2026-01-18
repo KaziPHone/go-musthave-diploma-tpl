@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/helpers"
 	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/user"
@@ -11,6 +12,8 @@ import (
 
 func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(user.UserIDKey).(int)
+
+	w.Header().Set("Content-Type", "application/json")
 
 	type request struct {
 		Order string  `json:"order"`
@@ -36,7 +39,18 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userBalance.Current -= req.Sum
+	query = `
+		UPDATE user_balance 
+		SET current = $2, 
+			updated_at = $3 
+		WHERE user_id = $1
+	`
+	err = h.Storage.DBStorage.Insert(query, userID, userBalance.Current, time.Now())
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusPaymentRequired)
+	}
+
 	fmt.Println(userBalance.Current, err)
 
-	w.Header().Set("Content-Type", "application/json")
 }
