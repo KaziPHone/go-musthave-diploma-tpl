@@ -44,7 +44,7 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		UPDATE orders 
 		SET amount = amount - $2, 
 			updated_at = $3 
-		WHERE order_number = $1
+		WHERE number = $1
 	`
 	err = h.Storage.DBStorage.Insert(query, userID, balance, time.Now())
 	if err != nil {
