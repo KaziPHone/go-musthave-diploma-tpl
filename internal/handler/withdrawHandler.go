@@ -2,15 +2,14 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/helpers"
 	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/user"
 )
 
 func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
+
 	userID := r.Context().Value(user.UserIDKey).(int)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -40,19 +39,19 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query = `
-		UPDATE orders 
-		SET accrual = accrual - $2, 
-			processed_at = $3 
-		WHERE number = $1
-	`
-	err = h.Storage.DBStorage.Insert(query, req.Order, balance, time.Now())
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
+	// query = `
+	// 	UPDATE orders
+	// 	SET accrual = accrual - $2,
+	// 		processed_at = $3
+	// 	WHERE number = $1
+	// `
+	// err = h.Storage.DBStorage.Insert(query, req.Order, balance, time.Now())
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	http.Error(w, "Internal server error", http.StatusInternalServerError)
+	// }
 
-	fmt.Println(balance, err, req.Sum)
+	// fmt.Println(balance, err, req.Sum)
 	w.WriteHeader(http.StatusOK)
 
 }
