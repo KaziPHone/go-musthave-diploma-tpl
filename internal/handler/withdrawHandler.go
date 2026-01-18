@@ -46,7 +46,7 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 			processed_at = $3 
 		WHERE number = $1
 	`
-	err = h.Storage.DBStorage.Insert(query, userID, balance, time.Now())
+	err = h.Storage.DBStorage.Insert(query, req.Order, balance, time.Now())
 	if err != nil {
 		fmt.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
