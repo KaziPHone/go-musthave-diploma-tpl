@@ -52,7 +52,7 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error", http.StatusPaymentRequired)
 	}
 
-	fmt.Println(balance, err)
+	fmt.Println(balance, err, req.Sum)
 	w.WriteHeader(http.StatusOK)
 
 }
