@@ -58,6 +58,16 @@ func (h *Handler) WithdrawHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// fmt.Println(balance, err, req.Sum)
+
+	query = `
+    INSERT INTO balance_operations (user_id, type, amount, order_number, processed_at)
+    VALUES ($1, 'withdraw', $2, $3, $4)
+	`
+	err = h.Storage.DBStorage.Insert(query, userID, req.Sum, req.Order, time.Now())
+	if err != nil {
+		http.Error(w, "Failed to save withdrawal", http.StatusInternalServerError)
+		return
+	}
 	w.WriteHeader(http.StatusOK)
 
 }
