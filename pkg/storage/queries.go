@@ -65,7 +65,7 @@ func (d *DataBase) GetWithdrawals(r context.Context, userID int) (*sql.Rows, err
 	return d.GetRows(r, query, userID)
 }
 
-func (d *DataBase) GetUserId(req user.UserRequest, isHashed bool) (int, error) {
+func (d *DataBase) GetUserID(req user.UserRequest, isHashed bool) (int, error) {
 	query := `SELECT id FROM users WHERE login = $1 AND password = $2`
 	pass := req.Password
 	if !isHashed {
@@ -74,7 +74,7 @@ func (d *DataBase) GetUserId(req user.UserRequest, isHashed bool) (int, error) {
 	return d.CountRows(query, req.Login, pass)
 }
 
-func (d *DataBase) GetUserIdWithOrder(orderNumber string) (int, error) {
+func (d *DataBase) GetUserIDWithOrder(orderNumber string) (int, error) {
 	query := `SELECT user_id FROM orders WHERE number = $1`
 	return d.CountRows(query, orderNumber)
 }

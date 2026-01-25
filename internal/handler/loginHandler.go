@@ -25,7 +25,7 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := h.Storage.DBStorage.GetUserId(req, isHashed)
+	userID, err := h.Storage.DBStorage.GetUserID(req, isHashed)
 	if err == sql.ErrNoRows {
 		http.Error(w, "Invalid login/password", http.StatusUnauthorized)
 		return

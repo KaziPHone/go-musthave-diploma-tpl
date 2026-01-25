@@ -31,7 +31,7 @@ func (h *Handler) UploadOrderHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Проверка существования заказа
-	existingUserID, err := h.Storage.DBStorage.GetUserIdWithOrder(orderNumber)
+	existingUserID, err := h.Storage.DBStorage.GetUserIDWithOrder(orderNumber)
 	if err == nil {
 		if existingUserID == userID {
 			w.WriteHeader(http.StatusOK)

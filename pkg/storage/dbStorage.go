@@ -26,8 +26,8 @@ type DBStorage interface {
 	GetUserBalance(userID int) *sql.Row
 	GetOrders(r context.Context, userID int) (*sql.Rows, error)
 	GetWithdrawals(r context.Context, userID int) (*sql.Rows, error)
-	GetUserId(req user.UserRequest, isHashed bool) (int, error)
-	GetUserIdWithOrder(orderNumber string) (int, error)
+	GetUserID(req user.UserRequest, isHashed bool) (int, error)
+	GetUserIDWithOrder(orderNumber string) (int, error)
 	AddNewOrder(orderNumber string, userID int, statusOrder string) error
 	UpdateBalance(userID int, req user.RequestOrder, userBalance user.Balance) error
 }
