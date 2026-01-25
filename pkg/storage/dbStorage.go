@@ -3,9 +3,7 @@ package storage
 import (
 	"context"
 	"database/sql"
-	"time"
 
-	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/crypto"
 	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/user"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -25,6 +23,13 @@ type DBStorage interface {
 	GetRows(r context.Context, query string, args ...interface{}) (*sql.Rows, error)
 	RegisterUserWithBalance(req user.UserRequest, isHashed bool) (int, error)
 	UserIsRegistred(login string) (bool, error)
+	GetUserBalance(userID int) *sql.Row
+	GetOrders(r context.Context, userID int) (*sql.Rows, error)
+	GetWithdrawals(r context.Context, userID int) (*sql.Rows, error)
+	GetUserId(req user.UserRequest, isHashed bool) (int, error)
+	GetUserIdWithOrder(orderNumber string) (int, error)
+	AddNewOrder(orderNumber string, userID int, statusOrder string) error
+	UpdateBalance(userID int, req user.RequestOrder, userBalance user.Balance) error
 }
 
 type DataBase struct {
@@ -151,45 +156,4 @@ func (d *DataBase) setMigratePath() {
 	if d.migratePath == "" {
 		d.migratePath = "file://./migrations"
 	}
-}
-
-func (d *DataBase) RegisterUserWithBalance(req user.UserRequest, isHashed bool) (int, error) {
-
-	transaction, err := d.db.Begin()
-	if err != nil {
-		return 0, err
-	}
-	defer transaction.Rollback()
-
-	pass := req.Password
-	if !isHashed {
-		pass = crypto.HashString(req.Password) // хеширование пароля
-	}
-
-	var userID int
-	query := `INSERT INTO users (login, password) VALUES ($1, $2) RETURNING id`
-	err = transaction.QueryRow(query, req.Login, pass).Scan(&userID)
-	if err != nil {
-		return 0, err
-	}
-
-	t := time.Now()
-	_, err = transaction.Exec(`INSERT INTO user_balance (user_id, current, withdrawn, updated_at, uploaded_at) 
-		VALUES ($1, $2, $3, $4, $5)`, userID, 0, 0, t, t)
-	if err != nil {
-		return 0, err
-	}
-
-	// Фиксируем транзакцию
-	if err = transaction.Commit(); err != nil {
-		return 0, err
-	}
-
-	return userID, nil
-}
-
-func (d *DataBase) UserIsRegistred(login string) (bool, error) {
-	query := `SELECT COUNT(id) FROM users WHERE login = $1`
-	result, err := d.CountRows(query, login)
-	return result > 0, err
 }

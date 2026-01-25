@@ -12,8 +12,7 @@ func (h *Handler) GetWithdrawalsHandler(w http.ResponseWriter, r *http.Request) 
 
 	w.Header().Set("Content-Type", "application/json")
 
-	query := `SELECT * FROM balance_operations WHERE user_id = $1 AND type = 'withdraw'  ORDER BY processed_at DESC`
-	rows, err := h.Storage.DBStorage.GetRows(r.Context(), query, userID)
+	rows, err := h.Storage.DBStorage.GetWithdrawals(r.Context(), userID)
 
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

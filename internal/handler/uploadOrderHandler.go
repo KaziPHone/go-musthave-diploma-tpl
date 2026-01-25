@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/user"
 	"github.com/gymgle/exercism/go/luhn"
@@ -32,8 +31,7 @@ func (h *Handler) UploadOrderHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Проверка существования заказа
-	query := `SELECT user_id FROM orders WHERE number = $1`
-	existingUserID, err := h.Storage.DBStorage.CountRows(query, orderNumber)
+	existingUserID, err := h.Storage.DBStorage.GetUserIdWithOrder(orderNumber)
 	if err == nil {
 		if existingUserID == userID {
 			w.WriteHeader(http.StatusOK)
@@ -50,8 +48,7 @@ func (h *Handler) UploadOrderHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Создание нового заказа
-	query = `INSERT INTO orders (number, user_id, status, uploaded_at) VALUES ($1, $2, $3, $4)`
-	if err = h.Storage.DBStorage.Insert(query, orderNumber, userID, "NEW", time.Now()); err != nil {
+	if err = h.Storage.DBStorage.AddNewOrder(orderNumber, userID, "NEW"); err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}

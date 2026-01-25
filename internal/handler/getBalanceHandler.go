@@ -15,8 +15,7 @@ func (h *Handler) GetBalanceHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var userBalance user.Balance
-	query := `SELECT user_id, current, withdrawn FROM user_balance WHERE user_id = $1`
-	row := h.Storage.DBStorage.InsertWithReturning(query, userID)
+	row := h.Storage.DBStorage.GetUserBalance(userID)
 
 	userBalance, err := helpers.GetUserBalance(row)
 

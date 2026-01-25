@@ -50,3 +50,8 @@ type Operation struct {
 	Order       string    `json:"order"`
 	ProcessedAt time.Time `json:"processed_at"`
 }
+
+type RequestOrder struct {
+	Order string  `json:"order"`
+	Sum   float64 `json:"sum"`
+}

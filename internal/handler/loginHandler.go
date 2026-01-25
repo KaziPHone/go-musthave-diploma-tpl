@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/crypto"
 	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/helpers"
 	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/user"
 )
@@ -26,7 +25,7 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := h.loginUser(req, isHashed)
+	userID, err := h.Storage.DBStorage.GetUserId(req, isHashed)
 	if err == sql.ErrNoRows {
 		http.Error(w, "Invalid login/password", http.StatusUnauthorized)
 		return
@@ -46,13 +45,4 @@ func (h *Handler) LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Login successful"))
-}
-
-func (h *Handler) loginUser(req user.UserRequest, isHashed bool) (int, error) {
-	query := `SELECT id FROM users WHERE login = $1 AND password = $2`
-	pass := req.Password
-	if !isHashed {
-		pass = crypto.HashString(req.Password)
-	}
-	return h.Storage.DBStorage.CountRows(query, req.Login, pass)
 }
