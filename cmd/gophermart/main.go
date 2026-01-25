@@ -1,7 +1,12 @@
 package main
 
 import (
+	"context"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/KaziPHone/go-musthave-diploma-tpl/internal/config"
 	"github.com/KaziPHone/go-musthave-diploma-tpl/internal/handler"
@@ -43,9 +48,35 @@ func main() {
 	go accrual.Start()
 	log.Printf("Accrual service available on: %s...", cfg.AccrualAddress)
 
-	log.Printf("Starting server on: %s...", cfg.Host)
-	err = http.ListenAndServe(cfg.Host, router)
-	if err != nil {
-		log.Err(err)
+	srv := &http.Server{
+		Addr:    cfg.Host,
+		Handler: router,
+	}
+
+	go func() {
+		log.Printf("Starting server on: %s...", cfg.Host)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Err(err).Msg("Server error")
+		}
+	}()
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	<-c
+
+	log.Info().Msg("Graceful shutdown initiated...")
+
+	// Контекст для graceful shutdown
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// Останавливаем accrual-сервис
+	accrual.Stop()
+
+	// Останавливаем HTTP-сервер
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Err(err).Msg("Forced server shutdown")
+	} else {
+		log.Info().Msg("Server stopped gracefully")
 	}
 }
