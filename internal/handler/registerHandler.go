@@ -3,9 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
-	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/crypto"
 	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/helpers"
 	"github.com/KaziPHone/go-musthave-diploma-tpl/pkg/user"
 )
@@ -32,7 +30,7 @@ func (h *Handler) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	userIsRegistred, err := h.userIsRegistred(req.Login)
+	userIsRegistred, err := h.Storage.DBStorage.UserIsRegistred(req.Login)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -43,20 +41,8 @@ func (h *Handler) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.registrationUser(req, isHashed)
+	userID, err := h.Storage.DBStorage.RegisterUserWithBalance(req, isHashed)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	userID, err := h.loginUser(req, isHashed)
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	if err := h.addUserBalance(userID); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -74,32 +60,4 @@ func (h *Handler) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		"message": "User registered successfully",
 	})
 
-}
-
-func (h *Handler) registrationUser(req user.UserRequest, isHashed bool) error {
-
-	pass := req.Password
-	if !isHashed {
-		pass = crypto.HashString(req.Password) // хеширование пароля
-	}
-
-	query := `INSERT INTO users (login, password) VALUES ($1, $2)`
-	if err := h.Storage.DBStorage.Insert(query, req.Login, pass); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (h *Handler) userIsRegistred(login string) (bool, error) {
-	query := `SELECT COUNT(login) FROM users WHERE login = $1`
-	result, err := h.Storage.DBStorage.CountRows(query, login)
-	return result > 0, err
-}
-
-func (h *Handler) addUserBalance(userID int) error {
-	query := `INSERT INTO user_balance (user_id, current, withdrawn, updated_at, uploaded_at) 
-	VALUES ($1, $2, $3, $4, $5)`
-	t := time.Now()
-	return h.Storage.DBStorage.Insert(query, userID, 0, 0, t, t)
 }
